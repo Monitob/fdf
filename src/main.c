@@ -26,7 +26,7 @@ void draw_line(t_coord p1, t_coord p2, void *mlx, void *win){
 	b = p1.y - a * p1.x;
 	while (p1.x != p2.x)
 	{
-		mlx_pixel_put(mlx, win, p1.x, p1.y, 0xFF0000);
+		mlx_pixel_put(mlx, win, p1.x, p1.y, 0x00ff00);
 		p1.x += (p1.x > p2.x) ? -1 : 1;
 		p1.y = a * p1.x + b;
 	} 
@@ -39,6 +39,7 @@ int	color_lines2(void *mlx, void *win, t_coord map_c, int i, int *line)
 	p2.x = map_c.x - 20;
 	p2.y = map_c.y + 20 - line[i] + line[i];
 	draw_line(map_c, p2, mlx, win);
+
 	return 1;
 }
 
@@ -50,6 +51,15 @@ int	color_lines(void *mlx, void *win, t_coord map_c, int i, int *line)
 	p2.y = map_c.y + 20 - (line[i + 1] + line[i]);
 	draw_line2(map_c, p2, mlx, win);
 	return 1;
+}
+
+void draw_w(void *mlx, void *win, t_coord coord, int i, int *line)
+{
+	t_coord p2;
+
+	p2.x = coord.x + 20;
+	p2.y = coord.y + 20 - (line[i + 1] - line[i]);
+	draw_line2(coord, p2, mlx, win);
 }
 
 void	draw_map(t_map *map_list, void *mlx, void *win)
@@ -72,14 +82,18 @@ void	draw_map(t_map *map_list, void *mlx, void *win)
 	{
 		map_coord.x +=  20;
 		if (i > 0)
-				map_coord.y += 20 - map_list->line[i] + map_list->line[i - 1];
+				map_coord.y += 20 - map_list->line[i] + map_list->line[i + 1];
 		else{
 				map_coord.y += 20 - map_list->line[i];
 		}
 		if (map_list->line[i + 1])
 			color_lines(mlx, win, map_coord, i, map_list->line);
-		else if (map_list)
+		if (map_list->next)
 			color_lines2(mlx, win, map_coord, i, map_list->line);
+		draw_w(mlx, win, map_coord, i, map_list->line);
+		if (i >= map_list->len)
+			draw_w(mlx, win, map_coord, i, map_list->line);
+
 		i++;	
 	}
  	map_coord.x = temp_x - 20;
